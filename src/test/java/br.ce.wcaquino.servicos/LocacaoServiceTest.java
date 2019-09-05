@@ -6,8 +6,7 @@ import br.ce.wcaquino.entidades.Usuario;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+
 import java.util.Date;
 import static br.ce.wcaquino.utils.DataUtils.isMesmaData;
 import static br.ce.wcaquino.utils.DataUtils.obterDataComDiferencaDias;
