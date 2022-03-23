@@ -9,5 +9,8 @@
         <module name="TestesUnitarios" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="testeUnitarioUdemy" target="1.5" />
+    </bytecodeTargetLevel>
   </component>
 </project>
