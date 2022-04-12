@@ -2,17 +2,21 @@ package br.ce.wcaquino.servicos;
 
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
+import br.ce.wcaquino.entidades.Locacoes;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static br.ce.wcaquino.utils.DataUtils.isMesmaData;
 import static br.ce.wcaquino.utils.DataUtils.obterDataComDiferencaDias;
@@ -21,7 +25,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
 
-public class LocacaoServiceTest {
+public class LocacoesServiceTest {
+
+    LocacoesService service;
 
     @Rule
     public ErrorCollector error = new ErrorCollector();
@@ -29,60 +35,41 @@ public class LocacaoServiceTest {
     @Rule
     public ExpectedException exception ;
 
-    @Test
-    public void testeLocacao(){ /*utilizando Assert.assert*/
-        Object obj = null;
-        Assert.assertTrue(true);
-        Assert.assertFalse(false);
-        Assert.assertNull(obj);
-
-
-        Assert.assertEquals(Math.PI, 3.14, 0.01);
-        Assert.assertEquals(1.02244,1.02255,0.01);
-        Assert.assertNotEquals("Bola","bola");
-        Assert.assertTrue("bola".equalsIgnoreCase("Bola"));
-        Assert.assertTrue("bola".startsWith("bo"));
-
-
-        Usuario usuario = new Usuario("Marcelo");
-        Usuario usuario1 = new Usuario("Marcelo");
-
-        Assert.assertEquals(usuario,usuario1);
-        Assert.assertNotSame(usuario,usuario1);
-
+    @Before
+    public void setup(){
+         service  = new LocacoesService();
     }
 
     @Test
-    public void testeLocacao1()  throws Exception {/*utilizando Assert.assertThat*/
+    public void testeLocacao() throws Exception { /*utilizando Assert.assert*/
 
         //cenario
-        LocacaoService locacaoService = new LocacaoService();
+
         Usuario usuario = new Usuario("Marcelo");
-        Filme filme = new Filme("Batman", 1, 5.0);
+        List<Filme> filme = Arrays.asList(new Filme("Batman", 1, 5.0));
 
 
-        Locacao locacao = locacaoService.alugarFilme(usuario, filme);
+        Locacoes locacoes = service.alugarFilme(usuario, filme);
 
-        Assert.assertThat(locacao.getValor(),CoreMatchers.is(equalTo(5.0)));   /* verifique que valor e igual a 5, assertThat sem utlizar linguagem estatica */
-        Assert.assertThat(locacao.getValor(),is(not(6.0)));
-        Assert.assertThat(isMesmaData(locacao.getDataLocacao(),new Date()), is(true));
-        Assert.assertThat(isMesmaData(locacao.getDataRetorno(), obterDataComDiferencaDias(1)), is(true));
+        error.checkThat(locacoes.getValor(),CoreMatchers.is(equalTo(5.0)));   /* verifique que valor e igual a 5, assertThat sem utlizar linguagem estatica */
+        error.checkThat(locacoes.getValor(),is(not(6.0)));
+        error.checkThat(isMesmaData(locacoes.getDataLocacao(),new Date()), is(true));
+        error.checkThat(isMesmaData(locacoes.getDataRetorno(), obterDataComDiferencaDias(1)), is(true));
     }
 
      @Test
     public void testeLocacao2()  throws Exception {/*utilizando ErrorCollector */
 
         //cenario
-        LocacaoService locacaoService = new LocacaoService();
         Usuario usuario = new Usuario("Marcelo");
-        Filme filme = new Filme("Batman", 1, 5.0);
+         List<Filme> filme = Arrays.asList(new Filme("Batman", 1, 5.0));
 
         Boolean valor;
         Boolean data_locacao;
         Boolean data_retorno;
 
         //acao
-        Locacao locacao = locacaoService.alugarFilme(usuario, filme);
+        Locacoes locacao = service.alugarFilme(usuario, filme);
 
 
         //verificacao
@@ -118,12 +105,11 @@ public class LocacaoServiceTest {
     public void testeLocacao3()  throws Exception {/*utilizando ErrorCollector */
 
         //cenario
-        LocacaoService locacaoService = new LocacaoService();
         Usuario usuario = new Usuario("Marcelo");
-        Filme filme = new Filme("Batman", 2, 5.0);
+        List<Filme> filme = Arrays.asList(new Filme("Batman", 1, 5.0));
 
         //acao
-            Locacao locacao = locacaoService.alugarFilme(usuario, filme);
+            Locacoes locacao = service.alugarFilme(usuario, filme);
 
             error.checkThat(locacao.getValor(),is(equalTo(5.0)));
             error.checkThat(isMesmaData(locacao.getDataLocacao(),new Date()), is(equalTo(true)));
@@ -132,45 +118,22 @@ public class LocacaoServiceTest {
     }
 
     @Test
-    public void testeLocacao_filmeSemEstoque() {
-        LocacaoService locacaoService = new LocacaoService();
+    public void testeLocacao_filmeSemEstoque() throws Exception {
 
         Usuario usuario = new Usuario("Marcelo");
-        Filme filme = new Filme("Batman", 0, 5.0);
-
-        try{
-            locacaoService.alugarFilme(usuario,filme);
-            Assert.fail("Deveria ter lançado uma exceção");
-        }catch (Exception e){
-            Assert.assertThat(e.getMessage(),is("Filme sem estoque!"));
-
-        }
+        List<Filme> filme = Arrays.asList(new Filme("Batman", 0, 5.0));
+        service.alugarFilme(usuario,filme);
 
     }
 
-    @Test
-    public void testeLocacao_filmeSemEstoque_1() throws Exception{
-        LocacaoService locacaoService = new LocacaoService();
-
-        Usuario usuario = new Usuario("Marcelo");
-        Filme filme = new Filme("Batman", 0, 5.0);
-
-        exception.expect(Exception.class);
-        exception.expectMessage("Filme sem estoque!");
-
-        locacaoService.alugarFilme(usuario,filme);
-
-
-    }
 
     @Test
     public void testeLocacao_UsuarioVazio() throws FilmeSemEstoqueException {
-        LocacaoService locacaoService = new LocacaoService();
 
-        Filme filme = new Filme("Batman", 1, 5.0);
+        List<Filme> filme = Arrays.asList(new Filme("Batman", 1, 5.0));;
 
         try{
-            locacaoService.alugarFilme(null,filme);
+            service.alugarFilme(null,filme);
             Assert.fail("Usuario deveria estar preenchido");
         }catch (LocadoraException e){
            Assert.assertThat(e.getMessage(),CoreMatchers.is("Usuario vazio!"));
